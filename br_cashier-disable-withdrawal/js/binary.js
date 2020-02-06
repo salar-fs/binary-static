@@ -15574,7 +15574,7 @@ var Cashier = function () {
         });
     };
 
-    var disableLockedAreasBtn = function disableLockedAreasBtn(_ref3) {
+    var checkStatusIsLocked = function checkStatusIsLocked(_ref3) {
         var status = _ref3.status;
 
         var is_cashier_locked = status.includes('cashier_locked');
@@ -15591,8 +15591,8 @@ var Cashier = function () {
     var onLoad = function onLoad() {
         if (Client.isLoggedIn()) {
             BinarySocket.send({ statement: 1, limit: 1 });
-            BinarySocket.wait('authorize', 'mt5_login_list', 'statement').then(function () {
-                disableLockedAreasBtn(State.getResponse('get_account_status'));
+            BinarySocket.wait('authorize', 'mt5_login_list', 'statement', 'get_account_status').then(function () {
+                checkStatusIsLocked(State.getResponse('get_account_status'));
                 var residence = Client.get('residence');
                 var currency = Client.get('currency');
                 if (Client.get('is_virtual')) {
