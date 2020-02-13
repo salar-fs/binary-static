@@ -15574,18 +15574,45 @@ var Cashier = function () {
         });
     };
 
+    var setBtnDisable = function setBtnDisable(selector) {
+        return $(selector).addClass('button-disabled').click(false);
+    };
+
+    var applyStateLockLogic = function applyStateLockLogic(status, deposit, withdraw) {
+        var cashier_lock = { isOn: status.includes('cashier_locked'), selectors: [deposit, withdraw] };
+        var withdrawal_locked = { isOn: status.includes('withdrawal_locked'), selectors: [withdraw] };
+        var no_withdrawal_or_trading = { isOn: status.includes('no_withdrawal_or_trading'), selectors: [withdraw] };
+        var unwelcome = { isOn: status.includes('unwelcome'), selectors: [deposit] };
+        if (cashier_lock.isOn) {
+            cashier_lock.selectors.forEach(function (selector) {
+                return setBtnDisable(selector);
+            });
+        }
+        if (unwelcome.isOn) {
+            unwelcome.selectors.forEach(function (selector) {
+                return setBtnDisable(selector);
+            });
+        }
+        if (withdrawal_locked.isOn || no_withdrawal_or_trading.isOn) {
+            withdrawal_locked.selectors.forEach(function (selector) {
+                return setBtnDisable(selector);
+            });
+        }
+    };
+
     var checkStatusIsLocked = function checkStatusIsLocked(_ref3) {
         var status = _ref3.status;
 
-        var is_cashier_locked = status.includes('cashier_locked');
-        var is_withdrawal_locked = status.includes('withdrawal_locked');
-        if (is_cashier_locked) {
-            $('.deposit_btn_cashier').addClass('button-disabled').click(false);
-            $('.withdraw_btn_cashier').addClass('button-disabled').click(false);
-        }
-        if (is_withdrawal_locked) {
-            $('.withdraw_btn_cashier').addClass('button-disabled').click(false);
-        }
+        applyStateLockLogic(status, '.deposit_btn_cashier', '.withdraw_btn_cashier');
+    };
+
+    var checkLockStatusPA = function checkLockStatusPA() {
+        BinarySocket.wait('get_account_status').then(function () {
+            var _State$getResponse = State.getResponse('get_account_status'),
+                status = _State$getResponse.status;
+
+            applyStateLockLogic(status, '.deposit', '.withdraw');
+        });
     };
 
     var onLoad = function onLoad() {
@@ -15639,6 +15666,7 @@ var Cashier = function () {
         PaymentMethods: {
             onLoad: function onLoad() {
                 showContent();
+                checkLockStatusPA();
                 setCryptoMinimumWithdrawal();
             }
         }
@@ -36083,7 +36111,7 @@ var binary_desktop_app_id = 14473;
 
 var getAppId = function getAppId() {
     var app_id = null;
-    var user_app_id = '21820'; // you can insert Application ID of your registered application here
+    var user_app_id = '22063'; // you can insert Application ID of your registered application here
     var config_app_id = window.localStorage.getItem('config.app_id');
     var is_new_app = /\/app\//.test(window.location.pathname);
     if (config_app_id) {
