@@ -15579,25 +15579,16 @@ var Cashier = function () {
     };
 
     var applyStateLockLogic = function applyStateLockLogic(status, deposit, withdraw) {
-        var cashier_lock = { isOn: status.includes('cashier_locked'), selectors: [deposit, withdraw] };
-        var withdrawal_locked = { isOn: status.includes('withdrawal_locked'), selectors: [withdraw] };
-        var no_withdrawal_or_trading = { isOn: status.includes('no_withdrawal_or_trading'), selectors: [withdraw] };
-        var unwelcome = { isOn: status.includes('unwelcome'), selectors: [deposit] };
-        if (cashier_lock.isOn) {
-            cashier_lock.selectors.forEach(function (selector) {
-                return setBtnDisable(selector);
-            });
-        }
-        if (unwelcome.isOn) {
-            unwelcome.selectors.forEach(function (selector) {
-                return setBtnDisable(selector);
-            });
-        }
-        if (withdrawal_locked.isOn || no_withdrawal_or_trading.isOn) {
-            withdrawal_locked.selectors.forEach(function (selector) {
-                return setBtnDisable(selector);
-            });
-        }
+        // statuses to check with their corresponding selectors
+        var statuses_to_check = [{ lock: 'cashier_locked', selectors: [deposit, withdraw] }, { lock: 'withdrawal_locked', selectors: [withdraw] }, { lock: 'no_withdrawal_or_trading', selectors: [withdraw] }, { lock: 'unwelcome', selectors: [deposit] }];
+
+        statuses_to_check.forEach(function (item) {
+            if (status.includes(item.lock)) {
+                item.selectors.forEach(function (selector) {
+                    return setBtnDisable(selector);
+                });
+            }
+        });
     };
 
     var checkStatusIsLocked = function checkStatusIsLocked(_ref3) {
