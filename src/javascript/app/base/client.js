@@ -96,9 +96,8 @@ const Client = (() => {
                         customerSDK.deactivateChat({ chatId });
                     }
                 }
-                resolve();
             });
-        } catch (e){
+        } finally {
             resolve();
         }
 
